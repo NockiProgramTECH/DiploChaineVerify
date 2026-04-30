@@ -106,3 +106,30 @@ Permet de vérifier un diplôme en envoyant son identifiant unique.
 *   **Gestion du QR Code** : Utilisez une bibliothèque comme `zxing` (Android) ou `AVFoundation` (iOS) pour scanner le code.
 *   **Affichage** : Si `valid` est `true`, affichez un badge vert "Vérifié" avec les informations de l'étudiant pour que le recruteur puisse comparer avec le document physique/PDF.
 *   **Sécurité** : Ne stockez pas les données des étudiants localement après la vérification pour respecter la confidentialité des données (RGPD).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

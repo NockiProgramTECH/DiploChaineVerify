@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+<!-- permission d'utiliser internet -->
+<uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="recruteur"
         android:name="${applicationName}"

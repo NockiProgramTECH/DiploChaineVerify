@@ -17,7 +17,6 @@ class _AcceuilState extends State<Acceuil> {
   final List<Widget> _screens = [
     const HomeScreenContent(),
     const HistoryScreen(),
-    const Center(child: Text("Profil Screen")),
   ];
 
   @override
@@ -35,16 +34,14 @@ class _AcceuilState extends State<Acceuil> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
             label: "Accueil",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
+            icon: Icon(Icons.history_outlined),
+            activeIcon: Icon(Icons.history),
             label: "Historique",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: "Profil",
           ),
         ],
       ),
@@ -57,35 +54,42 @@ class HomeScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildHeader(),
-        const SizedBox(height: 20),
-        ActionCard(
-          title: "Scanner un document",
-          subtitle: "Scannez un diplôme ou\ntout autre document",
-          icon: Icons.qr_code_scanner,
-          backgroundColor: AppColors.primaryGreen,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ScanScreen()),
-            );
-          },
-        ),
-        ActionCard(
-          title: "Historique des vérifications",
-          subtitle: "Consultez vos précédentes\nvérifications",
-          icon: Icons.history,
-          backgroundColor: AppColors.cardBackground,
-          iconBackgroundColor: AppColors.primaryGreen.withOpacity(0.1),
-          textColor: AppColors.textDark,
-          onTap: () {
-             // In a real app, you might want to switch the tab instead of pushing
-             // But for now, let's keep it simple or use the bottom nav
-          },
-        ),
-      ],
+    // Get the state to switch tabs
+    final acceuilState = context.findAncestorStateOfType<_AcceuilState>();
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 24),
+          ActionCard(
+            title: "Scanner un document",
+            subtitle: "Vérifiez l'authenticité d'un\ndiplôme en quelques secondes",
+            icon: Icons.qr_code_scanner,
+            backgroundColor: AppColors.primaryGreen,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ScanScreen()),
+              );
+            },
+          ),
+          ActionCard(
+            title: "Historique",
+            subtitle: "Consultez vos précédentes\nvérifications enregistrées",
+            icon: Icons.history,
+            backgroundColor: Colors.white,
+            iconBackgroundColor: AppColors.primaryGreen.withOpacity(0.1),
+            textColor: AppColors.textDark,
+            onTap: () {
+              acceuilState?.setState(() {
+                acceuilState._currentIndex = 1;
+              });
+            },
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
     );
   }
 

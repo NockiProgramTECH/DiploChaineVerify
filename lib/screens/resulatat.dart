@@ -11,40 +11,24 @@ class ResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isValid = result['valid'] ?? false;
     Map<String, dynamic>? diploma = result['diploma'];
+    Map<String, dynamic>? university = result['university'];
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text("Résultat de la vérification"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: const Text("Résultat de vérification"),
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            _buildStatusBadge(isValid),
-            const SizedBox(height: 30),
-            _buildInfoCard(diploma, isValid),
-            const SizedBox(height: 20),
-            TextButton.icon(
-              onPressed: () {
-                 if (diploma != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => DetailDocScreen(diploma: diploma, university: result['university'], blockchain: result['blockchain'])),
-                    );
-                 }
-              },
-              icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGreen),
-              label: Text(
-                "Voir plus de détails",
-                style: AppTheme.bodyText.copyWith(color: AppColors.primaryGreen, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 40),
-            _buildActionButtons(),
+            _buildStatusHeader(isValid),
+            const SizedBox(height: 24),
+            if (isValid) _buildBlockchainBadge(),
+            const SizedBox(height: 24),
+            _buildInfoSection(diploma, university, isValid),
+            const SizedBox(height: 32),
+            _buildActionButtons(context, diploma),
             const SizedBox(height: 40),
           ],
         ),
@@ -52,99 +36,144 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(bool isValid) {
+  Widget _buildStatusHeader(bool isValid) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(24),
       width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
         color: isValid ? AppColors.primaryGreen : AppColors.errorRed,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isValid ? AppColors.primaryGreen : AppColors.errorRed).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isValid ? Icons.star : Icons.close,
-              color: isValid ? AppColors.accentGold : Colors.white,
-              size: 40,
+              isValid ? Icons.verified : Icons.gpp_bad,
+              color: Colors.white,
+              size: 64,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
-            isValid ? "Authentique" : "Non authentique",
-            style: AppTheme.heading2.copyWith(color: Colors.white),
+            isValid ? "DOCUMENT AUTHENTIQUE" : "DOCUMENT NON AUTHENTIQUE",
+            textAlign: TextAlign.center,
+            style: AppTheme.heading2.copyWith(
+              color: Colors.white,
+              letterSpacing: 1.2,
+              fontSize: 18,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            isValid 
-              ? "Ce document est authentique et valide."
-              : "Ce document n'a pas pu être vérifié ou est invalide.",
+            isValid
+                ? "Ce diplôme a été vérifié avec succès sur la blockchain."
+                : result['message'] ?? "L'authenticité de ce document n'a pu être établie.",
             textAlign: TextAlign.center,
-            style: AppTheme.bodyText.copyWith(color: Colors.white70),
+            style: AppTheme.bodyText.copyWith(color: Colors.white.withOpacity(0.9)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard(Map<String, dynamic>? diploma, bool isValid) {
+  Widget _buildBlockchainBadge() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.accentGold.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accentGold.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.link, color: AppColors.accentGold),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Preuve Blockchain active",
+                  style: AppTheme.labelBold.copyWith(color: AppColors.accentGold, fontSize: 14),
+                ),
+                Text(
+                  "Ancrage sécurisé certifié",
+                  style: AppTheme.subtitle.copyWith(color: AppColors.accentGold.withOpacity(0.8)),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.verified, color: AppColors.primaryGreen, size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(Map<String, dynamic>? diploma, Map<String, dynamic>? university, bool isValid) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Informations du document",
-            style: AppTheme.heading2.copyWith(fontSize: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Détails de l'extraction", style: AppTheme.heading2.copyWith(fontSize: 16)),
+              if (isValid) const Icon(Icons.info_outline, color: AppColors.grey, size: 20),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildInfoRow("Titulaire", diploma?['student'] ?? "---"),
-          _buildInfoRow("Diplôme", diploma?['degree'] ?? "---"),
-          _buildInfoRow("Émetteur", "Université Polytechnique"), // Example
-          _buildInfoRow("Date d'émission", "15 Juillet 2023"), // Example
-          _buildInfoRow("Numéro de série", diploma?['id']?.toString().substring(0, 10).toUpperCase() ?? "---"),
-          _buildInfoRow("Hash (ID)", diploma?['id'] ?? "---", isLong: true),
+          const Divider(height: 32),
+          _buildInfoRow("Titulaire", diploma?['student'] ?? "Inconnu"),
+          _buildInfoRow("Diplôme", diploma?['degree'] ?? "Non spécifié"),
+          _buildInfoRow("Émetteur", university?['name'] ?? "Non spécifié"),
+          _buildInfoRow("Année", (diploma?['year'] ?? "---").toString()),
+          _buildInfoRow("Mention", (diploma?['mention'] ?? "---").toString().toUpperCase()),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isLong = false}) {
+  Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 100,
-            child: Text(
-              label,
-              style: AppTheme.bodyText.copyWith(color: AppColors.grey),
-            ),
+            child: Text(label, style: AppTheme.subtitle.copyWith(fontSize: 13)),
           ),
           Expanded(
             child: Text(
               value,
               style: AppTheme.bodyText.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: isLong ? 12 : 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textDark,
               ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: isLong ? 2 : 1,
             ),
           ),
         ],
@@ -152,38 +181,65 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(BuildContext context, Map<String, dynamic>? diploma) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            flex: 2,
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.download, color: Colors.white),
-              label: const Text("Télécharger le rapport"),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: () {
+                if (diploma != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DetailDocScreen(
+                              diploma: diploma,
+                              university: result['university'],
+                              blockchain: result['blockchain'],
+                            )),
+                  );
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
               ),
+              child: const Text("Voir le certificat complet", style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.share, color: AppColors.primaryGreen),
-              label: const Text("Partager"),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryGreen,
-                side: const BorderSide(color: AppColors.primaryGreen),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text("Nouveau scan"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textMedium,
+                    side: BorderSide(color: AppColors.grey.withOpacity(0.3)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primaryRed.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.share, color: AppColors.primaryRed),
+                  onPressed: () {},
+                ),
+              ),
+            ],
           ),
         ],
       ),
