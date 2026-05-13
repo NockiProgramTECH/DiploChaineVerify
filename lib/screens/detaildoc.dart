@@ -131,6 +131,9 @@ class DetailDocScreen extends StatelessWidget {
   }
 
   Widget _buildBlockchainCard() {
+    bool isAnchored = blockchain?['anchored'] ?? false;
+    String txHash = blockchain?['tx_hash'] ?? "Non disponible";
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -160,11 +163,12 @@ class DetailDocScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              blockchain?['tx_hash'] ?? "0x7d3f...9a8b7c6d5e4f3a2b1c0d9e8f7",
-              style: const TextStyle(
-                color: Colors.white70,
+              txHash,
+              style: TextStyle(
+                color: isAnchored ? Colors.white70 : Colors.white38,
                 fontSize: 11,
                 fontFamily: 'monospace',
+                fontStyle: isAnchored ? FontStyle.normal : FontStyle.italic,
               ),
             ),
           ),
@@ -172,7 +176,11 @@ class DetailDocScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildBlockchainStat("Status", "Confirmé", Colors.green),
+              _buildBlockchainStat(
+                "Status", 
+                isAnchored ? "Confirmé" : "En attente", 
+                isAnchored ? Colors.green : AppColors.accentGold
+              ),
               _buildBlockchainStat("Réseau", "Mainnet", Colors.blue),
             ],
           ),

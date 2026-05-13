@@ -129,70 +129,81 @@ class _VerificationScreenState extends State<VerificationScreen>
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 24),
 
-            // Circular progress with shield icon
-            _CircularProgressWidget(
-              progress: progress,
-              rotateController: _rotateController,
-            ),
-
-            const SizedBox(height: 32),
-            Text("Analyse et vérification…", style: AppTheme.heading2),
-            const SizedBox(height: 8),
-            Text(
-              "Veuillez patienter pendant que nous\nvérifions l'authenticité du document.",
-              textAlign: TextAlign.center,
-              style: AppTheme.bodyText,
-            ),
-
-            const SizedBox(height: 40),
-
-            // Steps list
-            ...List.generate(_steps.length, (i) {
-              return _StepTile(
-                step: _steps[i],
-                index: i,
-                currentStep: _currentStep,
-              );
-            }),
-
-            const Spacer(),
-
-            // Diploma ID chip
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.primaryGreen.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.qr_code, size: 16, color: AppColors.primaryGreen),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      "ID : ${widget.diplomaId}",
-                      style: AppTheme.subtitle.copyWith(
-                        color: AppColors.primaryGreen,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
+                      // Circular progress with shield icon
+                      _CircularProgressWidget(
+                        progress: progress,
+                        rotateController: _rotateController,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+
+                      const SizedBox(height: 32),
+                      Text("Analyse et vérification…", style: AppTheme.heading2),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Veuillez patienter pendant que nous\nvérifions l'authenticité du document.",
+                        textAlign: TextAlign.center,
+                        style: AppTheme.bodyText,
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // Steps list
+                      ...List.generate(_steps.length, (i) {
+                        return _StepTile(
+                          step: _steps[i],
+                          index: i,
+                          currentStep: _currentStep,
+                        );
+                      }),
+
+                      const Spacer(),
+
+                      // Diploma ID chip
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGreen.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.qr_code, size: 16, color: AppColors.primaryGreen),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                "ID : ${widget.diplomaId}",
+                                style: AppTheme.subtitle.copyWith(
+                                  color: AppColors.primaryGreen,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 32),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

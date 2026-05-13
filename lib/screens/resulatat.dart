@@ -12,6 +12,8 @@ class ResultScreen extends StatelessWidget {
     bool isValid = result['valid'] ?? false;
     Map<String, dynamic>? diploma = result['diploma'];
     Map<String, dynamic>? university = result['university'];
+    Map<String, dynamic>? blockchain = result['blockchain'];
+    bool isAnchored = blockchain?['anchored'] ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -22,13 +24,13 @@ class ResultScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildStatusHeader(isValid),
+            _buildStatusHeader(isValid, isAnchored),
             const SizedBox(height: 24),
-            if (isValid) _buildBlockchainBadge(),
+            if (isValid) _buildBlockchainBadge(isAnchored),
             const SizedBox(height: 24),
             _buildInfoSection(diploma, university, isValid),
             const SizedBox(height: 32),
-            _buildActionButtons(context, diploma),
+            _buildActionButtons(context, diploma, university, blockchain),
             const SizedBox(height: 40),
           ],
         ),
@@ -36,19 +38,23 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusHeader(bool isValid) {
+  Widget _buildStatusHeader(bool isValid, bool isAnchored) {
+    Color headerColor = isValid 
+        ? (isAnchored ? AppColors.primaryGreen : AppColors.accentGold)
+        : AppColors.errorRed;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
-        color: isValid ? AppColors.primaryGreen : AppColors.errorRed,
+        color: headerColor,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(40),
           bottomRight: Radius.circular(40),
         ),
         boxShadow: [
           BoxShadow(
-            color: (isValid ? AppColors.primaryGreen : AppColors.errorRed).withOpacity(0.3),
+            color: headerColor.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -63,14 +69,16 @@ class ResultScreen extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isValid ? Icons.verified : Icons.gpp_bad,
+              isValid ? (isAnchored ? Icons.verified : Icons.check_circle_outline) : Icons.gpp_bad,
               color: Colors.white,
               size: 64,
             ),
           ),
           const SizedBox(height: 20),
           Text(
-            isValid ? "DOCUMENT AUTHENTIQUE" : "DOCUMENT NON AUTHENTIQUE",
+            isValid 
+                ? (isAnchored ? "DOCUMENT AUTHENTIQUE" : "DOCUMENT VALIDE")
+                : "DOCUMENT NON AUTHENTIQUE",
             textAlign: TextAlign.center,
             style: AppTheme.heading2.copyWith(
               color: Colors.white,
@@ -81,7 +89,9 @@ class ResultScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             isValid
-                ? "Ce diplôme a été vérifié avec succès sur la blockchain."
+                ? (isAnchored 
+                    ? "Ce diplôme a été vérifié et certifié sur la blockchain."
+                    : "Diplôme authentifié, en attente d'ancrage blockchain.")
                 : result['message'] ?? "L'authenticité de ce document n'a pu être établie.",
             textAlign: TextAlign.center,
             style: AppTheme.bodyText.copyWith(color: Colors.white.withOpacity(0.9)),
@@ -91,35 +101,40 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBlockchainBadge() {
+  Widget _buildBlockchainBadge(bool isAnchored) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withOpacity(0.1),
+        color: (isAnchored ? AppColors.accentGold : AppColors.grey).withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.accentGold.withOpacity(0.3)),
+        border: Border.all(color: (isAnchored ? AppColors.accentGold : AppColors.grey).withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.link, color: AppColors.accentGold),
+          Icon(Icons.link, color: isAnchored ? AppColors.accentGold : AppColors.grey),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Preuve Blockchain active",
-                  style: AppTheme.labelBold.copyWith(color: AppColors.accentGold, fontSize: 14),
+                  isAnchored ? "Preuve Blockchain active" : "Blockchain en attente",
+                  style: AppTheme.labelBold.copyWith(
+                    color: isAnchored ? AppColors.accentGold : AppColors.textMedium, 
+                    fontSize: 14
+                  ),
                 ),
                 Text(
-                  "Ancrage sécurisé certifié",
-                  style: AppTheme.subtitle.copyWith(color: AppColors.accentGold.withOpacity(0.8)),
+                  isAnchored ? "Ancrage sécurisé certifié" : "Non encore inscrit sur le registre",
+                  style: AppTheme.subtitle.copyWith(
+                    color: (isAnchored ? AppColors.accentGold : AppColors.grey).withOpacity(0.8)
+                  ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.verified, color: AppColors.primaryGreen, size: 20),
+          if (isAnchored) const Icon(Icons.verified, color: AppColors.primaryGreen, size: 20),
         ],
       ),
     );
@@ -142,16 +157,17 @@ class ResultScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Détails de l'extraction", style: AppTheme.heading2.copyWith(fontSize: 16)),
+              Text("Détails du Document", style: AppTheme.heading2.copyWith(fontSize: 16)),
               if (isValid) const Icon(Icons.info_outline, color: AppColors.grey, size: 20),
             ],
           ),
           const Divider(height: 32),
           _buildInfoRow("Titulaire", diploma?['student'] ?? "Inconnu"),
           _buildInfoRow("Diplôme", diploma?['degree'] ?? "Non spécifié"),
+          _buildInfoRow("Spécialité", diploma?['field'] ?? "---"),
           _buildInfoRow("Émetteur", university?['name'] ?? "Non spécifié"),
           _buildInfoRow("Année", (diploma?['year'] ?? "---").toString()),
-          _buildInfoRow("Mention", (diploma?['mention'] ?? "---").toString().toUpperCase()),
+          _buildInfoRow("Mention", (diploma?['mention'] ?? "---").toString().replaceAll('_', ' ').toUpperCase()),
         ],
       ),
     );
@@ -181,7 +197,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, Map<String, dynamic>? diploma) {
+  Widget _buildActionButtons(BuildContext context, Map<String, dynamic>? diploma, Map<String, dynamic>? university, Map<String, dynamic>? blockchain) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -197,8 +213,8 @@ class ResultScreen extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => DetailDocScreen(
                               diploma: diploma,
-                              university: result['university'],
-                              blockchain: result['blockchain'],
+                              university: university,
+                              blockchain: blockchain,
                             )),
                   );
                 }

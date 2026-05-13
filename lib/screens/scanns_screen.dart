@@ -80,9 +80,9 @@ class _ScanScreenState extends State<ScanScreen>
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (_, a, __) =>
+            pageBuilder: (_, a, _) =>
                 VerificationScreen(diplomaId: diplomaId),
-            transitionsBuilder: (_, anim, __, child) => FadeTransition(
+            transitionsBuilder: (_, anim, _, child) => FadeTransition(
               opacity: anim,
               child: child,
             ),
